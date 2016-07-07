@@ -12,11 +12,11 @@ namespace WhimsyServer.CSharp.Server
             Get["/takesForever"] = parm =>
             {
                 Thread.Sleep(TimeSpan.FromMinutes(1));
-                return  "sorry it took me a long time";
+                return "takesForever: sorry it took me a long time";
             };
-            Get["/alwaysWorks"] = parm => "Here you go buddy!";
-            Get["/alwaysFails"] = _ => ErrorResponse("Ahah gotcha again!");
-            Get["/randomlyFails"] = parm => (new Random()).Next(1,100) > 50 ? ErrorResponse("ouch bad luck") : "yay good luck";
+            Get["/alwaysWorks"] = parm => "alwaysWorks: Here you go buddy!";
+            Get["/alwaysFails"] = _ => ErrorResponse("alwaysFails: Ahah gotcha again!");
+            Get["/randomlyFails"] = parm => (new Random()).Next(1,100) > 50 ? ErrorResponse("randomlyFails: ouch bad luck") : "randomlyFails: yay good luck";
         }
 
         private static Response ErrorResponse(string msg)
