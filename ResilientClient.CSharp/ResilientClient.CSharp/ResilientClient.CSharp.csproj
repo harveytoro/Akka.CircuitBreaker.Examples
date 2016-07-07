@@ -58,6 +58,9 @@
   <ItemGroup>
     <Compile Include="Actors\WhimsyClientActor.cs" />
     <Compile Include="Messages\GetData.cs" />
+    <Compile Include="Messages\IResponseWrapper.cs" />
+    <Compile Include="Messages\ResponseFailure.cs" />
+    <Compile Include="Messages\ResponseSuccessful.cs" />
     <Compile Include="Program.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>

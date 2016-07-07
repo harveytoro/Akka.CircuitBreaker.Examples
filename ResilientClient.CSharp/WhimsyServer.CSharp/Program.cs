@@ -9,8 +9,7 @@ namespace WhimsyServer.CSharp
         static void Main(string[] args)
         {
             var nancyHost = $"{ConfigurationManager.AppSettings["address"]}:{ConfigurationManager.AppSettings["port"]}";
-            var nancyConfig = new HostConfiguration();
-            nancyConfig.UrlReservations.CreateAutomatically = true;
+            var nancyConfig = new HostConfiguration {UrlReservations = {CreateAutomatically = true}};
             using (var host = new NancyHost(nancyConfig, new Uri(nancyHost)))
             {
                 host.Start();

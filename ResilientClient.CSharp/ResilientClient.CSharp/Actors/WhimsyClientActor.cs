@@ -1,5 +1,4 @@
 ﻿using System;
-using System.Net;
 using System.Net.Http;
 using System.Threading.Tasks;
 using Akka.Actor;
@@ -10,13 +9,13 @@ namespace ResilientClient.CSharp.Actors
 {
     internal class WhimsyClientActor: TypedActor, IHandle<GetData>, IHandle<ResponseSuccessful<string>>, IHandle<ResponseFailure<string>>
     {
-        private readonly string _whimsyServerAddress;
+        private readonly Uri _whimsyServerAddress;
         private readonly HttpClient _httpClient;
 
-        public WhimsyClientActor(string whimsyServerAddress)
+        public WhimsyClientActor(Uri whimsyServerAddress, TimeSpan requestTimeOut)
         {
             _whimsyServerAddress = whimsyServerAddress;
-            _httpClient = new HttpClient();
+            _httpClient = new HttpClient {Timeout = requestTimeOut};
         }
 
         public void Handle(GetData message)
@@ -24,18 +23,18 @@ namespace ResilientClient.CSharp.Actors
             RequestData(message.GetPath);
         }
 
-        private string GetPathToUri(string getPath)
+        private Uri GetPathToUri(string getPath)
         {
-            
-            return getPath.StartsWith("/") ? $"{_whimsyServerAddress}{getPath}": $"{_whimsyServerAddress}/{getPath}";
+
+            return new Uri(_whimsyServerAddress, getPath);
         }
 
         private void RequestData(string getPath)
         {
-            QueryAPI(getPath).PipeTo(Self);
+            QueryApi(getPath).PipeTo(Self);
         }
 
-        async private Task<IResponseWrapper<string>> QueryAPI(string getPath)
+        private async Task<IResponseWrapper<string>> QueryApi(string getPath)
         {
             var response = await _httpClient.GetAsync(GetPathToUri(getPath));
             if (response.IsSuccessStatusCode)
@@ -47,8 +46,6 @@ namespace ResilientClient.CSharp.Actors
             {
                 return new ResponseFailure<string>(new Exception(response.StatusCode.ToString()));
             }
-                
-            
         }
 
         public void Handle(ResponseSuccessful<string> message)
@@ -61,29 +58,4 @@ namespace ResilientClient.CSharp.Actors
             Context.GetLogger().Info($"Error: {message.Exception.Message}");
         }
     }
-
-    internal interface IResponseWrapper<T>
-    {
-    }
-
-    internal class ResponseSuccessful<T> : IResponseWrapper<T>
-    {
-        public T Data { get; }
-
-        public ResponseSuccessful(T data)
-        {
-            Data = data;
-        }
-    }
-
-    internal class ResponseFailure<T> : IResponseWrapper<T>
-    {
-        public Exception Exception { get; }
-
-        public ResponseFailure(Exception exception)
-        {
-            Exception = exception;
-        }
-    }
-
 }
