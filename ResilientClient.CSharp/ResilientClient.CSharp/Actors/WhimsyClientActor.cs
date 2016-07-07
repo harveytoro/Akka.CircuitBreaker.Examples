@@ -36,7 +36,18 @@ namespace ResilientClient.CSharp.Actors
 
         private async Task<IResponseWrapper<string>> QueryApi(string getPath)
         {
-            var response = await _httpClient.GetAsync(GetPathToUri(getPath));
+            HttpResponseMessage response;
+            try
+            {
+                
+                response = await _httpClient.GetAsync(GetPathToUri(getPath));
+            }
+            catch (TaskCanceledException e)
+            {
+              
+                return new ResponseFailure<string>(new Exception($"{getPath} request timed out"));
+            }
+            
             if (response.IsSuccessStatusCode)
             {
                 var content = await response.Content.ReadAsStringAsync();
