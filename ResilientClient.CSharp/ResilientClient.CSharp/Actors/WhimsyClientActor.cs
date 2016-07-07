@@ -11,6 +11,7 @@ namespace ResilientClient.CSharp.Actors
     {
         private readonly Uri _whimsyServerAddress;
         private readonly HttpClient _httpClient;
+        private readonly ILoggingAdapter _log = Context.GetLogger();
 
         public WhimsyClientActor(Uri whimsyServerAddress, TimeSpan requestTimeOut)
         {
@@ -20,32 +21,30 @@ namespace ResilientClient.CSharp.Actors
 
         public void Handle(GetData message)
         {
-            RequestData(message.GetPath);
+            QueryApi(message.GetPath).PipeTo(Self);
         }
-
-        private Uri GetPathToUri(string getPath)
+        public void Handle(ResponseSuccessful<string> message)
         {
-
-            return new Uri(_whimsyServerAddress, getPath);
+            _log.Info($"Received: {message.Data}");
         }
 
-        private void RequestData(string getPath)
+        public void Handle(ResponseFailure<string> message)
         {
-            QueryApi(getPath).PipeTo(Self);
+            _log.Debug($"Error: {message.Exception.Message}");
         }
-
+        
         private async Task<IResponseWrapper<string>> QueryApi(string getPath)
         {
             HttpResponseMessage response;
             try
             {
-                
                 response = await _httpClient.GetAsync(GetPathToUri(getPath));
             }
             catch (TaskCanceledException e)
             {
-              
-                return new ResponseFailure<string>(new Exception($"{getPath} request timed out"));
+                var errMsg = $"{getPath} request timed out";
+//                _log.Error(errMsg);
+                return new ResponseFailure<string>(new Exception(errMsg));
             }
             
             if (response.IsSuccessStatusCode)
@@ -55,18 +54,11 @@ namespace ResilientClient.CSharp.Actors
             }
             else
             {
-                return new ResponseFailure<string>(new Exception(response.StatusCode.ToString()));
+                var errMsg = $"Request failed with code {response.StatusCode}";
+//                _log.Error(errMsg);
+                return new ResponseFailure<string>(new Exception(errMsg));
             }
         }
-
-        public void Handle(ResponseSuccessful<string> message)
-        {
-            Context.GetLogger().Info($"Received: {message.Data}");
-        }
-
-        public void Handle(ResponseFailure<string> message)
-        {
-            Context.GetLogger().Info($"Error: {message.Exception.Message}");
-        }
+        private Uri GetPathToUri(string getPath) => new Uri(_whimsyServerAddress, getPath);
     }
 }
