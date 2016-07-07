@@ -1,7 +1,6 @@
 ﻿using System;
 using System.Threading;
 using Nancy;
-using Nancy.Responses;
 
 namespace WhimsyServer.CSharp.Server
 {
