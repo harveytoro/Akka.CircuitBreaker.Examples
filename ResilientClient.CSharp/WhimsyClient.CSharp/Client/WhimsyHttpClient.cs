@@ -1,58 +1,35 @@
 using System;
-using System.Net.Http;
 using System.Threading.Tasks;
 using WhimsyClient.CSharp.Messages;
-using WhimsyServer.Api.CSharp;
 
 namespace WhimsyClient.CSharp.Client
 {
     public class WhimsyHttpClient
     {
-        private readonly Uri _whimsyServerAddress;
-        private readonly HttpClient _httpClient;
+        public const string MessageError = "SORRY SERVER DOWN";
+        public const string MessageSuccess = "USEFUL DATA";
         private readonly PeriodicCounter _apiCallCounter;
 
-        public WhimsyHttpClient(Uri whimsyServerAddress, TimeSpan requestTimeOut)
+        public WhimsyHttpClient(int clientPeriod)
         {
-            _whimsyServerAddress = whimsyServerAddress;
-            _httpClient = new HttpClient {Timeout = requestTimeOut};
-            _apiCallCounter = PeriodicCounter.Create(10);
+            _apiCallCounter = PeriodicCounter.Create(clientPeriod);
         }
 
 
-        private string GetPath()
+        public IResponseWrapper<string> QueryApi()
         {
-            return _apiCallCounter.IsBeforeHalfWay() ? RoutesPaths.AlwaysWorks : RoutesPaths.TakesForever;
-        }
-
-        public async Task<IResponseWrapper<string>> QueryApiAsync()
-        {
-            var getPath = GetPath();
             _apiCallCounter.UpdateCounter();
-            HttpResponseMessage response;
-            try
-            {
-                response = await _httpClient.GetAsync(GetPathToUri(getPath));
-            }
-            catch (TaskCanceledException e)
-            {
-                var errMsg = $"{getPath} request timed out {e.Message}";
-                throw new Exception(errMsg);
-//                return new ResponseFailure<string>(new Exception(errMsg));
-            }
-            
-            if (response.IsSuccessStatusCode)
-            {
-                var content = await response.Content.ReadAsStringAsync();
-                return new ResponseSuccessful<string>(content);
-            }
-            else
-            {
-                var errMsg = $"Request failed with code {response.StatusCode}";
-                return new ResponseFailure<string>(new Exception(errMsg));
-            }
+            if (!_apiCallCounter.IsBeforeHalfWay())
+                throw new Exception(MessageError);
+            return new ResponseSuccessful<string>(MessageSuccess);
         }
 
-        private Uri GetPathToUri(string getPath) => new Uri(_whimsyServerAddress, getPath);
+        public Task<IResponseWrapper<string>> QueryApiAsync()
+        {
+            _apiCallCounter.UpdateCounter();
+            if (!_apiCallCounter.IsBeforeHalfWay())
+                throw new Exception(MessageError);
+            return Task.FromResult<IResponseWrapper<string>>(new ResponseSuccessful<string>(MessageSuccess));
+        }
     }
 }

@@ -57,6 +57,7 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Actors\WhimsyClientActor.cs" />
+    <Compile Include="Messages\GetDataAsync.cs" />
     <Compile Include="Messages\GetData.cs" />
     <Compile Include="Program.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
@@ -69,10 +70,6 @@
     <ProjectReference Include="..\WhimsyClient.CSharp\WhimsyClient.CSharp.csproj">
       <Project>{98d86b5c-469b-4478-bbaa-b02a6d5f82e4}</Project>
       <Name>WhimsyClient.CSharp</Name>
-    </ProjectReference>
-    <ProjectReference Include="..\WhimsyServer.Api.CSharp\WhimsyServer.Api.CSharp.csproj">
-      <Project>{71833EEA-41CC-480A-A280-9E4AA8A3C89F}</Project>
-      <Name>WhimsyServer.Api.CSharp</Name>
     </ProjectReference>
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />

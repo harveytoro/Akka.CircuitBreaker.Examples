@@ -11,10 +11,9 @@ namespace ResilientClient.CSharp
     {
         static void Main(string[] args)
         {
-            var whimsyServerAddress = $"{ConfigurationManager.AppSettings["address"]}:{ConfigurationManager.AppSettings["port"]}";
-            
             var actorSystem = ActorSystem.Create("AResilientRESTClient");
-            var client = actorSystem.ActorOf(Props.Create(() => new WhimsyClientActor(new Uri(whimsyServerAddress), TimeSpan.FromSeconds(45))), "WhimsyClientActor");
+            var numberOfConsecutiveResults = 5;
+            var client = actorSystem.ActorOf(Props.Create(() => new WhimsyClientActor(2*numberOfConsecutiveResults)), "WhimsyClientActor");
             Console.WriteLine("Starting in 3 seconds.");
           
             Console.WriteLine("Press Return to exit:");
@@ -31,7 +30,7 @@ namespace ResilientClient.CSharp
                 TimeSpan.FromSeconds(3), 
                 TimeSpan.FromSeconds(1),
                 client,
-                GetData.Create(),
+                GetDataAsync.Create(),
                 null 
                 );
         }
