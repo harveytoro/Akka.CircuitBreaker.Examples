@@ -1,8 +1,8 @@
 ﻿using System;
 
-namespace ResilientClient.CSharp.Messages
+namespace WhimsyClient.CSharp.Messages
 {
-    internal class ResponseFailure<T> : IResponseWrapper<T>
+    public class ResponseFailure<T> : IResponseWrapper<T>
     {
         public Exception Exception { get; }
 

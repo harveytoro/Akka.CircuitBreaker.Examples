@@ -63,6 +63,12 @@
   <ItemGroup>
     <None Include="README.md" />
   </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\WhimsyServer.Api.CSharp\WhimsyServer.Api.CSharp.csproj">
+      <Project>{71833eea-41cc-480a-a280-9e4aa8a3c89f}</Project>
+      <Name>WhimsyServer.Api.CSharp</Name>
+    </ProjectReference>
+  </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
        Other similar extension points exist, see Microsoft.Common.targets.

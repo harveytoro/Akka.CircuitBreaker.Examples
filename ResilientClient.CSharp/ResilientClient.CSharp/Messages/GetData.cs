@@ -2,36 +2,15 @@
 {
     class GetData
     {
-        public string GetPath { get; }
 
-        private GetData(string getPath)
+        private GetData()
         {
-            GetPath = getPath;
+            
         }
 
-        public static GetData Create(string getPath)
+        public static GetData Create()
         {
-            return new GetData(getPath);
-        }
-
-        public static GetData AlwaysWorks()
-        {
-            return Create("/alwaysWorks");
-        }
-
-        public static GetData AlwaysFails()
-        {
-            return Create("/alwaysFails");
-        }
-
-        public static GetData RandomlyFails()
-        {
-            return Create("/randomlyFails");
-            }
-
-        public static GetData TakesForever()
-        {
-            return Create("/takesForever");
+            return new GetData();
         }
     }
 

@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Threading;
 using Nancy;
+using WhimsyServer.Api.CSharp;
 
 namespace WhimsyServer.CSharp.Server
 {
@@ -9,14 +10,14 @@ namespace WhimsyServer.CSharp.Server
 
         public WhimsyServer()
         {
-            Get["/takesForever"] = parm =>
+            Get[RoutesPaths.TakesForever] = parm =>
             {
                 Thread.Sleep(TimeSpan.FromMinutes(1));
-                return "takesForever: sorry it took me a long time";
+                return ErrorResponse("takesForever: sorry it took me a long time");
             };
-            Get["/alwaysWorks"] = parm => "alwaysWorks: Here you go buddy!";
-            Get["/alwaysFails"] = _ => ErrorResponse("alwaysFails: Ahah gotcha again!");
-            Get["/randomlyFails"] = parm => (new Random()).Next(1,100) > 50 ? ErrorResponse("randomlyFails: ouch bad luck") : "randomlyFails: yay good luck";
+            Get[RoutesPaths.AlwaysWorks] = parm => $"{RoutesPaths.AlwaysWorks}: Here you go buddy!";
+            Get[RoutesPaths.AlwaysFails] = _ => ErrorResponse($"{RoutesPaths.AlwaysFails}: Ahah gotcha again!");
+            Get[RoutesPaths.RandomlyFails] = parm => (new Random()).Next(1,100) > 50 ? ErrorResponse($"{RoutesPaths.RandomlyFails}: UNLUCKY") : $"{RoutesPaths.RandomlyFails}: LUCKY";
         }
 
         private static Response ErrorResponse(string msg)

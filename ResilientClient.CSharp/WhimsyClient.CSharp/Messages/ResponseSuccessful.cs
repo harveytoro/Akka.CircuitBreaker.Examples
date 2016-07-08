@@ -1,6 +1,6 @@
-﻿namespace ResilientClient.CSharp.Messages
+﻿namespace WhimsyClient.CSharp.Messages
 {
-    internal class ResponseSuccessful<T> : IResponseWrapper<T>
+    public class ResponseSuccessful<T> : IResponseWrapper<T>
     {
         public T Data { get; }
 

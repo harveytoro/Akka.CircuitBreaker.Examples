@@ -14,23 +14,26 @@ namespace ResilientClient.CSharp
             var whimsyServerAddress = $"{ConfigurationManager.AppSettings["address"]}:{ConfigurationManager.AppSettings["port"]}";
             
             var actorSystem = ActorSystem.Create("AResilientRESTClient");
-            var client = actorSystem.ActorOf(Props.Create(() => new WhimsyClientActor(new Uri(whimsyServerAddress), TimeSpan.FromSeconds(2))), "WhimsyClientActor");
+            var client = actorSystem.ActorOf(Props.Create(() => new WhimsyClientActor(new Uri(whimsyServerAddress), TimeSpan.FromSeconds(45))), "WhimsyClientActor");
             Console.WriteLine("Starting in 3 seconds.");
-            Thread.Sleep(TimeSpan.FromSeconds(3));
+          
             Console.WriteLine("Press Return to exit:");
-            Communicate(client);
-            Communicate(client);
-            Communicate(client);
-            Communicate(client);
-
+            Communicate(actorSystem, client);
             Console.ReadLine();
         }
 
-        static void Communicate(IActorRef client)
+        static void Communicate(ActorSystem actorSystem, IActorRef client)
         {
-            client.Tell(GetData.TakesForever());
-            client.Tell(GetData.AlwaysWorks());
-            client.Tell(GetData.RandomlyFails());
+            
+            actorSystem
+                .Scheduler
+                .ScheduleTellRepeatedly(
+                TimeSpan.FromSeconds(3), 
+                TimeSpan.FromSeconds(1),
+                client,
+                GetData.Create(),
+                null 
+                );
         }
     }
 }
