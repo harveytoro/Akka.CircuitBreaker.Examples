@@ -2,6 +2,7 @@
 using System.Threading.Tasks;
 using Akka.Actor;
 using Akka.Event;
+using Akka.Pattern;
 using ResilientClient.CSharp.Messages;
 using WhimsyClient.CSharp.Client;
 using WhimsyClient.CSharp.Messages;
@@ -13,15 +14,23 @@ namespace ResilientClient.CSharp.Actors
         private readonly ILoggingAdapter _log = Context.GetLogger();
         private readonly WhimsyHttpClient _whimsyHttpClient;
 
+        private CircuitBreaker _circuitBreaker;
 
         public WhimsyClientActor(int clientPeriod)
         {
             _log.Debug("Starting WhimsyClientActor");
             _whimsyHttpClient = new WhimsyHttpClient(clientPeriod);
-            }
+
+
+            _circuitBreaker = new CircuitBreaker(3, TimeSpan.FromSeconds(5), TimeSpan.FromSeconds(5));
+            _circuitBreaker.OnOpen(() => _log.Info("CircuitBreaker is open"));
+            _circuitBreaker.OnHalfOpen(() => _log.Info("CircuitBreaker is half open (meaning that it is also half closed)"));
+            _circuitBreaker.OnClose(() => _log.Info("CircuitBreaker is closed"));
+
+        }
         public void Handle(GetDataAsync message)
         {
-           GetTheDataAsync()
+            _circuitBreaker.WithCircuitBreaker(GetTheDataAsync)
                         .PipeTo(Self);
         }
 
